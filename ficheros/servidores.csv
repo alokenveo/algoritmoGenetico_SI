@@ -1,4 +1,4 @@
-Servidor_ID,CPU (Núcleos),Memoria (GB),Consumo bajo (W),Consumo alto (W)
+id,cpu,memoria,bajo_consumo,alto_consumo
 1,10,72,56,236
 2,16,69,105,338
 3,7,20,67,422

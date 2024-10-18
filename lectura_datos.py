@@ -23,8 +23,8 @@ def leer_tareas(ruta_csv):
                 'id': int(row['id']),
                 'cpu': float(row['cpu']),
                 'memoria': float(row['memoria']),
-                'tiempo': float(row['tiempo']),
-                'prioridad': int(row['prioridad'])
+                'time': float(row['time']),
+                'prioridad': row['prioridad']
             })
     return tareas
 
@@ -38,15 +38,15 @@ def leer_configuracion(ruta_csv):
     return configuracion
 
 
-if __name__ == "__main__":
-    ruta_servidores = "ficheros/servidores.csv"
-    ruta_tareas = "ficheros/tareas.csv"
-    ruta_configuracion = "ficheros/config.csv"
+#if __name__ == "__main__":
+    #ruta_servidores = "ficheros/servidores.csv"
+    #ruta_tareas = "ficheros/tareas.csv"
+    #ruta_configuracion = "ficheros/config.csv"
 
-    servidores = leer_servidores(ruta_servidores)
+    #servidores = leer_servidores(ruta_servidores)
     #tareas = leer_tareas(ruta_tareas)
-    configuracion = leer_configuracion(ruta_configuracion)
+    #configuracion = leer_configuracion(ruta_configuracion)
 
-    print("Servidores:", servidores)
+    #print("Servidores:", servidores)
     #print("Tareas:", tareas)
-    print("Configuración:", configuracion)
+    #print("Configuración:", configuracion)

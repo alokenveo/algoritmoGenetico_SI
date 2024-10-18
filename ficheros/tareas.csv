@@ -1,4 +1,4 @@
-Tarea_ID,CPU Requerida (Núcleos),Memoria Requerida (GB),Tiempo Ejecución (min),Prioridad
+id,cpu,memoria,time,prioridad
 1,6,7,25,Baja
 2,2,5,37,Media
 3,6,15,44,Media
