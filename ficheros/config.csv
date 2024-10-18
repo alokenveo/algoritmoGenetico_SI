@@ -1,0 +1,10 @@
+Crossover probability: 0.8
+Mutation probability: 0.1
+Population Size: 10
+Generations: 100
+Selection operator: 1
+Crossover operator: 1 
+Crossover points number: 2
+Mutation operator: 1
+Replacement method: 2
+Percentage replacement population: 0.2
