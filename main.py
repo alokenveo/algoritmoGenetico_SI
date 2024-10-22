@@ -83,10 +83,13 @@ def inicializar_poblacion(pop_size, num_tareas, num_servers):
 def fitness(individuo, tareas, servers):
     total_energia = 0
     total_carga = [{'cpu': 0, 'memoria': 0} for _ in servers]  # Carga por servidor
+    penalizacion_prioridad = 0  # Penalización por prioridades no atendidas
 
     for i, tarea in enumerate(tareas):
         server_index = individuo[i] - 1  # Ajustar el índice del servidor
         server = servers[server_index]
+
+        # Acumular carga
         total_carga[server_index]['cpu'] += tarea['cpu']
         total_carga[server_index]['memoria'] += tarea['memoria']
 
@@ -96,11 +99,19 @@ def fitness(individuo, tareas, servers):
         else:  # Alta carga
             total_energia += server['alto_consumo']
 
+        # Penalización por prioridades
+        if tarea['prioridad'] == 'Alta':
+            penalizacion_prioridad += 10  # Penalización mayor para tareas altas
+        elif tarea['prioridad'] == 'Media':
+            penalizacion_prioridad += 5  # Penalización menor para tareas medias
+
     # Penalización por sobrecarga de CPU o memoria
     penalizacion_sobrecarga = sum(1 for carga, server in zip(total_carga, servers) if
                                   carga['cpu'] > server['cpu'] or carga['memoria'] > server['memoria'])
 
-    return -total_energia - penalizacion_sobrecarga  # Menor energía es mejor, penalizamos sobrecarga
+    # Convertir el fitness a positivo
+    fitness_value = 1 / (1 + total_energia + penalizacion_sobrecarga + penalizacion_prioridad)
+    return fitness_value*10000
 
 
 def ruleta(poblacion, fitnesses):
@@ -109,9 +120,9 @@ def ruleta(poblacion, fitnesses):
     actual = 0
     for i, fitness_valor in enumerate(fitnesses):
         actual += fitness_valor
-        if actual > seleccion:
+        if actual >= seleccion:
             return poblacion[i]
-
+    return poblacion[-1]  # En caso de que no se seleccione ninguno, devolver el último
 
 def cruce(padre1, padre2, points=2):
     if random.random() < 0.8:  # Probabilidad de cruce del 80%
@@ -139,6 +150,9 @@ def reemplazo(poblacion, nueva_poblacion, tasa_reemplazo=0.2):
 
 def algoritmo_genetico(pop_size, generations, tareas, servidores):
     poblacion = inicializar_poblacion(pop_size, len(tareas), len(servidores))
+    mejor_solucion = None
+    mejor_fitness = float('-inf')
+    mejor_generacion = 0
 
     for generacion in range(generations):
         fitnesses = [fitness(ind, tareas, servidores) for ind in poblacion]
@@ -154,10 +168,19 @@ def algoritmo_genetico(pop_size, generations, tareas, servidores):
         # Reemplazar parte de la población
         poblacion = reemplazo(poblacion, nueva_poblacion)
 
-        # Evaluar mejor individuo
-        mejor_individuo = max(poblacion, key=lambda ind: fitness(ind, tareas, servidores))
-        mejor_fitness = fitness(mejor_individuo, tareas, servidores)
-        print(f"Generación {generacion}, Mejor fitness: {mejor_fitness}, Mejor solución: {mejor_individuo}")
+        # Evaluar mejor individuo de la generación actual
+        mejor_individuo_generacion = max(poblacion, key=lambda ind: fitness(ind, tareas, servidores))
+        mejor_fitness_generacion = fitness(mejor_individuo_generacion, tareas, servidores)
+        print(
+            f"Generación {generacion + 1}, Mejor fitness: {mejor_fitness_generacion}, Mejor solución: {mejor_individuo_generacion}")
+
+        # Actualizar la mejor solución global si es necesario
+        if mejor_fitness_generacion > mejor_fitness:
+            mejor_solucion = mejor_individuo_generacion
+            mejor_fitness = mejor_fitness_generacion
+            mejor_generacion = generacion + 1
+
+    print(f"\nMejor solución encontrada, Generación {mejor_generacion}: {mejor_solucion}, Fitness: {mejor_fitness}")
 
 
 # Ejecutamos el main
