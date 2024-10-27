@@ -80,7 +80,7 @@ def inicializar_poblacion(pop_size, num_tareas, num_servers):
     return poblacion
 
 
-def fitness(individuo, tareas, servers):
+def fitness(individuo, tareas, servers, penalizacion_alta, penalizacion_media):
     total_energia = 0
     total_carga = [{'cpu': 0, 'memoria': 0} for _ in servers]  # Carga por servidor
     penalizacion_prioridad = 0  # Penalización por prioridades no atendidas
@@ -101,9 +101,9 @@ def fitness(individuo, tareas, servers):
 
         # Penalización por prioridades
         if tarea['prioridad'] == 'Alta':
-            penalizacion_prioridad += 10  # Penalización mayor para tareas altas
+            penalizacion_prioridad += penalizacion_alta  # Penalización mayor para tareas altas
         elif tarea['prioridad'] == 'Media':
-            penalizacion_prioridad += 5  # Penalización menor para tareas medias
+            penalizacion_prioridad += penalizacion_media  # Penalización menor para tareas medias
 
     # Penalización por sobrecarga de CPU o memoria
     penalizacion_sobrecarga = sum(1 for carga, server in zip(total_carga, servers) if
@@ -122,10 +122,10 @@ def ruleta(poblacion, fitnesses):
         actual += fitness_valor
         if actual >= seleccion:
             return poblacion[i]
-    return poblacion[-1]  # En caso de que no se seleccione ninguno, devolver el último
+    return poblacion[-1]  # Si no se selecciona ningún individuo, se devuelve el último
 
-def cruce(padre1, padre2, points=2):
-    if random.random() < 0.8:  # Probabilidad de cruce del 80%
+def cruce(padre1, padre2,prob_cruce, points=2):
+    if random.random() < prob_cruce:  # Probabilidad de cruce del 80%
         point1 = random.randint(1, len(padre1) - 2)
         point2 = random.randint(point1 + 1, len(padre1) - 1)
         descendiente1 = padre1[:point1] + padre2[point1:point2] + padre1[point2:]
@@ -134,48 +134,50 @@ def cruce(padre1, padre2, points=2):
     return padre1, padre2  # Si no ocurre cruce, los padres son los descendientes
 
 
-def mutacion(individuo, tasa_mutacion=0.1):
+def mutacion(individuo, prob_mutacion):
     for i in range(len(individuo)):
-        if random.random() < tasa_mutacion:  # Probabilidad de mutación del 10%
+        if random.random() < prob_mutacion:  # Probabilidad de mutación del 10%
             individuo[i] = random.randint(1, len(servidores))  # Cambiar servidor asignado
     return individuo
 
 
-def reemplazo(poblacion, nueva_poblacion, tasa_reemplazo=0.2):
+def reemplazo(poblacion, nueva_poblacion,penalizacion_alta,penalizacion_media, tasa_reemplazo=0.2):
     # Reemplazar el 20% de la población con nuevos individuos
     num_reemplazos = int(len(poblacion) * tasa_reemplazo)
-    poblacion_ordenada = sorted(poblacion, key=lambda ind: fitness(ind, tareas, servidores), reverse=True)
+    poblacion_ordenada = sorted(poblacion, key=lambda ind: fitness(ind, tareas, servidores,penalizacion_alta,penalizacion_media), reverse=True)
     return poblacion_ordenada[:-num_reemplazos] + nueva_poblacion[:num_reemplazos]
 
 
-def algoritmo_genetico(pop_size, generations, tareas, servidores):
+def algoritmo_genetico(pop_size, generations, tareas, servidores,prob_cruce,prob_mutacion,penalizacion_alta,penalizacion_media):
     poblacion = inicializar_poblacion(pop_size, len(tareas), len(servidores))
     mejor_solucion = None
     mejor_fitness = float('-inf')
     mejor_generacion = 0
 
     for generacion in range(generations):
-        fitnesses = [fitness(ind, tareas, servidores) for ind in poblacion]
+        fitnesses = [fitness(ind, tareas, servidores,penalizacion_alta,penalizacion_media) for ind in poblacion]
         nueva_poblacion = []
 
         # Crear nuevos individuos a través de cruce y mutación
         for _ in range(pop_size // 2):
             padre1 = ruleta(poblacion, fitnesses)
             padre2 = ruleta(poblacion, fitnesses)
-            descendiente1, descendiente2 = cruce(padre1, padre2)
-            nueva_poblacion.extend([mutacion(descendiente1), mutacion(descendiente2)])
+            descendiente1, descendiente2 = cruce(padre1, padre2, prob_cruce)
+            nueva_poblacion.extend([mutacion(descendiente1,prob_mutacion), mutacion(descendiente2,prob_mutacion)])
 
         # Reemplazar parte de la población
-        poblacion = reemplazo(poblacion, nueva_poblacion)
+        poblacion = reemplazo(poblacion, nueva_poblacion,penalizacion_alta,penalizacion_media)
 
         # Evaluar mejor individuo de la generación actual
-        mejor_individuo_generacion = max(poblacion, key=lambda ind: fitness(ind, tareas, servidores))
-        mejor_fitness_generacion = fitness(mejor_individuo_generacion, tareas, servidores)
+        mejor_individuo_generacion = max(poblacion, key=lambda ind: fitness(ind, tareas, servidores,penalizacion_alta,penalizacion_media))
+        mejor_fitness_generacion = fitness(mejor_individuo_generacion, tareas, servidores, penalizacion_alta,penalizacion_media)
+
+
         print(
             f"Generación {generacion + 1}, Mejor fitness: {mejor_fitness_generacion}, Mejor solución: {mejor_individuo_generacion}")
 
         # Actualizar la mejor solución global si es necesario
-        if mejor_fitness_generacion > mejor_fitness:
+        if mejor_fitness_generacion >= mejor_fitness:
             mejor_solucion = mejor_individuo_generacion
             mejor_fitness = mejor_fitness_generacion
             mejor_generacion = generacion + 1
@@ -187,6 +189,10 @@ def algoritmo_genetico(pop_size, generations, tareas, servidores):
 if __name__ == "__main__":
     population_size = 10
     generations = 100
+    penalizacion_alta=10
+    penalizacion_media=5
+    prob_cruce=0.8
+    prob_mutacion=0.1
 
     # Ejecutar algoritmo genético
-    algoritmo_genetico(population_size, generations, tareas, servidores)
+    algoritmo_genetico(population_size, generations, tareas, servidores,prob_cruce,prob_mutacion,penalizacion_alta,penalizacion_media)

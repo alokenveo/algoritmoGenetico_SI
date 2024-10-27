@@ -65,3 +65,5 @@ tareas = [
     {'id': 49, 'cpu': 7, 'memoria': 12, 'time': 33, 'prioridad': 'Media'},
     {'id': 50, 'cpu': 1, 'memoria': 5, 'time': 73, 'prioridad': 'Baja'}
 ]
+
+
