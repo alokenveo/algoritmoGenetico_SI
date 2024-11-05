@@ -30,22 +30,25 @@ for metodo_selec, selec_cruce, selec_mutacion, selec_reemplazo in configuracione
     resultados_mejor.append((metodo_selec, selec_cruce, selec_mutacion, selec_reemplazo, datos_fitness_generacion))
     resultados_medio.append((metodo_selec, selec_cruce, selec_mutacion, selec_reemplazo, fitness_medio_generacion))
 
+# Crear subplots
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
 # Graficar resultados para el mejor individuo
 for (metodo_selec, selec_cruce, selec_mutacion, selec_reemplazo, datos) in resultados_mejor:
-    plt.plot(datos, label=f'Selección: {metodo_selec}, Cruce: {selec_cruce}, Mutación: {selec_mutacion}, Reemplazo: {selec_reemplazo}')
-
-plt.title('Mejor Individuo por Configuración')
-plt.xlabel('Generaciones')
-plt.ylabel('Fitness del Mejor Individuo')
-plt.legend()
-plt.show()
+    ax1.plot(datos, label=f'Selección: {metodo_selec}, Cruce: {selec_cruce}, Mutación: {selec_mutacion}, Reemplazo: {selec_reemplazo}')
+ax1.set_title('Mejor Individuo por Configuración')
+ax1.set_xlabel('Generaciones')
+ax1.set_ylabel('Fitness del Mejor Individuo')
+ax1.legend()
 
 # Graficar resultados para el fitness medio
 for (metodo_selec, selec_cruce, selec_mutacion, selec_reemplazo, datos) in resultados_medio:
-    plt.plot(datos, label=f'Selección: {metodo_selec}, Cruce: {selec_cruce}, Mutación: {selec_mutacion}, Reemplazo: {selec_reemplazo}')
+    ax2.plot(datos, label=f'Selección: {metodo_selec}, Cruce: {selec_cruce}, Mutación: {selec_mutacion}, Reemplazo: {selec_reemplazo}')
+ax2.set_title('Fitness Medio por Configuración')
+ax2.set_xlabel('Generaciones')
+ax2.set_ylabel('Fitness Medio')
+ax2.legend()
 
-plt.title('Fitness Medio por Configuración')
-plt.xlabel('Generaciones')
-plt.ylabel('Fitness Medio')
-plt.legend()
+# Mostrar las gráficas
+plt.tight_layout()
 plt.show()
