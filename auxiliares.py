@@ -69,7 +69,8 @@ tareas = [
     {'id': 50, 'cpu': 1, 'memoria': 5, 'time': 73, 'prioridad': 'Baja'}
 ]
 
-#Aquí se recogerán las funciones auxiliares que se han utilizado en el código principal para que este sea más legible y fácil de entender.
+
+# Aquí se recogerán las funciones auxiliares que se han utilizado en el código principal para que este sea más legible y fácil de entender.
 def inicializar_poblacion(pop_size, num_tareas, num_servers):
     poblacion = []
     for _ in range(pop_size):
@@ -109,10 +110,10 @@ def fitness(individuo, tareas, servers, penalizacion_alta, penalizacion_media):
 
     # Convertir el fitness a positivo
     fitness_value = 1 / (1 + total_energia + penalizacion_sobrecarga + penalizacion_prioridad)
-    return fitness_value*10000
+    return fitness_value * 10000
 
 
-#FUNCIONES DE SELECCIÓN
+# FUNCIONES DE SELECCIÓN
 def ruleta(poblacion, fitnesses):
     total_fitness = sum(fitnesses)
     seleccion = random.uniform(0, total_fitness)
@@ -123,11 +124,13 @@ def ruleta(poblacion, fitnesses):
             return poblacion[i]
     return poblacion[-1]  # Si no se selecciona ningún individuo, se devuelve el último
 
+
 def torneo(poblacion, fitnesses, k=3):
     # Selecciona aleatoriamente 'k' individuos y elige el de mayor fitness
     participantes = random.sample(range(len(poblacion)), k)  # Índices de los participantes
     mejor = max(participantes, key=lambda idx: fitnesses[idx])
     return poblacion[mejor]
+
 
 def seleccion_por_ranking(poblacion, fitnesses):
     # Ordenar la población por fitness y asignar probabilidades basadas en el ranking
@@ -142,6 +145,7 @@ def seleccion_por_ranking(poblacion, fitnesses):
             return poblacion[idx]
     return poblacion[ranking[-1]]  # En caso de error, devolver el último
 
+
 def truncamiento(poblacion, fitnesses, porcentaje=0.5):
     # Ordenar la población por fitness en orden descendente
     num_seleccionados = int(len(poblacion) * porcentaje)
@@ -150,7 +154,8 @@ def truncamiento(poblacion, fitnesses, porcentaje=0.5):
     elegido = random.choice(elite_indices)
     return poblacion[elegido]
 
-#FUNCIONES DE CRUCE
+
+# FUNCIONES DE CRUCE
 def cruce_un_punto(padre1, padre2, prob_cruce):
     if random.random() < prob_cruce:  # Probabilidad de cruce
         point = random.randint(1, len(padre1) - 1)
@@ -159,7 +164,8 @@ def cruce_un_punto(padre1, padre2, prob_cruce):
         return descendiente1, descendiente2
     return padre1, padre2  # Si no ocurre cruce, los padres son los descendientes
 
-def cruce_multipunto(padre1, padre2,prob_cruce, points=2):
+
+def cruce_multipunto(padre1, padre2, prob_cruce, points=2):
     if random.random() < prob_cruce:  # Probabilidad de cruce del 80%
         point1 = random.randint(1, len(padre1) - 2)
         point2 = random.randint(point1 + 1, len(padre1) - 1)
@@ -169,15 +175,16 @@ def cruce_multipunto(padre1, padre2,prob_cruce, points=2):
     return padre1, padre2  # Si no ocurre cruce, los padres son los descendientes
 
 
-#FUNCIONES DE MUTACIÓN
-#Mutación 1: Cambiar el servidor asignado a una tarea
+# FUNCIONES DE MUTACIÓN
+# Mutación 1: Cambiar el servidor asignado a una tarea
 def mutacion1(individuo, prob_mutacion):
     for i in range(len(individuo)):
         if random.random() < prob_mutacion:  # Probabilidad de mutación del 10%
             individuo[i] = random.randint(1, len(servidores))  # Cambiar servidor asignado
     return individuo
 
-#Mutación 2: Intercambiar los servidores de dos tareas
+
+# Mutación 2: Intercambiar los servidores de dos tareas
 def mutacion2(individuo, prob_mutacion):
     if random.random() < prob_mutacion:
         # Seleccionar dos posiciones aleatorias para intercambiar
@@ -189,15 +196,18 @@ def mutacion2(individuo, prob_mutacion):
     return individuo
 
 
-#FUNCIONES DE REEMPLAZO
-#Reemplazo 1: Reemplaza toda la población actual con la nueva población de descendientes
+# FUNCIONES DE REEMPLAZO
+# Reemplazo 1: Reemplaza toda la población actual con la nueva población de descendientes
 def reemplazo_generacional(poblacion, nueva_poblacion):
     # Reemplaza toda la población con los descendientes
     return nueva_poblacion
 
-#Reemplazo 2:  Reemplaza un porcentaje tasa_reemplazo de la población con los individuos de la nueva población de descendientes
-def reemplazo_estacionario(poblacion, nueva_poblacion,penalizacion_alta,penalizacion_media, tasa_reemplazo=0.2):
+
+# Reemplazo 2:  Reemplaza un porcentaje tasa_reemplazo de la población con los individuos de la nueva población de descendientes
+def reemplazo_estacionario(poblacion, nueva_poblacion, penalizacion_alta, penalizacion_media, tasa_reemplazo=0.2):
     # Reemplazar el 20% de la población con nuevos individuos
     num_reemplazos = int(len(poblacion) * tasa_reemplazo)
-    poblacion_ordenada = sorted(poblacion, key=lambda ind: fitness(ind, tareas, servidores,penalizacion_alta,penalizacion_media), reverse=True)
+    poblacion_ordenada = sorted(poblacion,
+                                key=lambda ind: fitness(ind, tareas, servidores, penalizacion_alta, penalizacion_media),
+                                reverse=True)
     return poblacion_ordenada[:-num_reemplazos] + nueva_poblacion[:num_reemplazos]

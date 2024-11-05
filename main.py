@@ -26,7 +26,7 @@ def aplicar_mutacion(individuo, selec_mutacion, prob_mutacion=0.1):
         return mutacion2(individuo, prob_mutacion)
 
 
-def aplicar_reemplazo(poblacion, nueva_poblacion, selec_reemplazo):
+def aplicar_reemplazo(poblacion, nueva_poblacion, selec_reemplazo, penalizacion_alta, penalizacion_media):
     if selec_reemplazo == 1:
         return reemplazo_generacional(poblacion, nueva_poblacion)
     else:
@@ -57,7 +57,7 @@ def algoritmo_genetico(pop_size, generations,metodo_selec,selec_cruce,selec_muta
                 [aplicar_mutacion(descendiente1, selec_mutacion), aplicar_mutacion(descendiente2, selec_mutacion)])
 
         # Reemplazar parte de la población
-        poblacion = aplicar_reemplazo(poblacion, nueva_poblacion, selec_reemplazo)
+        poblacion = aplicar_reemplazo(poblacion, nueva_poblacion, selec_reemplazo, penalizacion_alta,penalizacion_media)
 
         # Evaluar mejor individuo de la generación actual
         mejor_individuo_generacion = max(poblacion, key=lambda ind: fitness(ind, tareas, servidores, penalizacion_alta,
